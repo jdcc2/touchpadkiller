@@ -1,5 +1,5 @@
 # Touchpadkiller
-Program to disable the touchpad while typing for Ubuntu. Includes an indicator in the panel.
+Program to disable the touchpad while typing for Ubuntu. Includes an indicator for the panel.
 
 Uses the generic input event interface in Linux (/dev/input/*) to disable the touchpad while typing.
 This can be usefull for touchpads which have incomplete driver support and are configured as generic input devices.
