@@ -37,3 +37,6 @@ Use `xinput list` to find all touchpads and keyboards.
 If you are not sure which name your keyboard or touchpad has, run `xinput disable [id number from xinput list]`, check if your keyboard/touchpad stops working, and then re-enable using `xinput enable [id]`.
 (WARNING: Have a back-up keyboard ready so you don't accidentally disable your only keyboard)
 
+#License
+
+GPLv3
