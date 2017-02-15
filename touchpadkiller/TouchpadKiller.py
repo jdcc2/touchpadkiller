@@ -9,7 +9,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk as gtk
 gi.require_version('AppIndicator3', '0.1')
 from gi.repository import AppIndicator3 as appindicator
-
+import logging
 
 """
 http://candidtim.github.io/appindicator/2014/09/13/ubuntu-appindicator-step-by-step.html
@@ -25,9 +25,28 @@ TODO
 
 
 class TouchpadKiller:
-    def __init__(self, keyboard_path, touchpad_path, delay):
-        self.keyboard = InputDevice(keyboard_path)
-        self.touchpad = InputDevice(touchpad_path)
+
+    def __init__(self, keyboard, touchpad, delay):
+        """
+
+        :param keyboard: InputDevice or path to keyboard device (/dev/input/event*)
+        :param touchpad: InputDevice or path to touchpad device (/dev/input/event*)
+        :param delay: seconds to wait after typing stops to re-enable touchpad
+        """
+        if isinstance(keyboard, InputDevice):
+            self.keyboard = keyboard
+        elif isinstance(keyboard, str):
+            self.keyboard = InputDevice(keyboard)
+        else:
+            raise ValueError('Invalid keyboard argument')
+
+        if isinstance(touchpad, InputDevice):
+            self.touchpad = touchpad
+        elif isinstance(touchpad, str):
+            self.touchpad = InputDevice(touchpad)
+        else:
+            raise ValueError('Invalid touchpad argument')
+
         self.delay = delay
         self.lastTypeEvent = 0
         self.disabled = False
@@ -36,8 +55,58 @@ class TouchpadKiller:
     @staticmethod
     def listDevices():
         devices = [InputDevice(fn) for fn in list_devices()]
+        print('[PATH] - "[NAME]" - [PHYS]')
         for device in devices:
-            print(device.fn, device.name, device.phys)
+            print('{} - "{}" - {}'.format(device.fn, device.name, device.phys))
+            caps = device.capabilities()
+
+    @staticmethod
+    def getFirstTouchpad():
+        """
+        touchpad.fn contains the device path
+
+        :return: touchpad or None
+        """
+        devices = [InputDevice(fn) for fn in list_devices()]
+        touchpad = None
+        #Search the input devices if it has a mouse button it is a mouse :-|
+        for device in devices:
+            caps = device.capabilities()
+            if ecodes.EV_KEY in caps:
+                for key in caps[ecodes.EV_KEY]:
+                    if key == ecodes.BTN_MOUSE:
+                        touchpad = device
+
+                if touchpad is not None:
+                    break
+        return touchpad
+
+    @staticmethod
+    def getFirstKeyboard():
+        devices = [InputDevice(fn) for fn in list_devices()]
+        keyboard = None
+        # Search the input devices if it has an ESC key it is a keyboard :-|
+        for device in devices:
+            caps = device.capabilities()
+            if ecodes.EV_KEY in caps:
+                for key in caps[ecodes.EV_KEY]:
+                    if key == ecodes.KEY_ESC:
+                        keyboard = device
+
+                if keyboard is not None:
+                    break
+        return keyboard
+
+    @staticmethod
+    def getDeviceByName(devicename):
+        devices = [InputDevice(fn) for fn in list_devices()]
+        result = None
+        # Search the input devices if it has an ESC key it is a keyboard :-|
+        for device in devices:
+            if device.name.lower() == devicename.lower():
+                result = device
+
+        return result
 
     async def detectTyping(self):
 
@@ -79,7 +148,7 @@ class TouchpadKiller:
         self.eventLoop.run_forever()
 
     def stopEventLoop(self):
-        print('Terminate signal received. Exiting..')
+        logging.info('Terminate signal received. Exiting..')
         self.eventLoop.stop()
 
     def run(self):
@@ -98,8 +167,14 @@ class TouchpadKiller:
 
     def build_menu(self):
         menu = gtk.Menu()
+        #create unclickable menuitems for the keyboard and touchpad
+        #TODO make the touchpad/keyboard item a toggle to disable/enable the device permanently
+        item_touchpad = gtk.MenuItem('TouchPad: {}'.format(self.touchpad.name), sensitive=False)
+        item_keyboard = gtk.MenuItem('Keyboard: {}'.format(self.keyboard.name), sensitive=False)
         item_quit = gtk.MenuItem('Quit')
         item_quit.connect('activate', self.quit)
+        menu.append(item_touchpad)
+        menu.append(item_keyboard)
         menu.append(item_quit)
         menu.show_all()
         return menu
