@@ -1,10 +1,13 @@
 # Touchpadkiller
-Program to disable the touchpad while typing for Ubuntu.
-Uses the generic input event interface in Linux (/dev/input/*) to disable the touchpad while typing. This can be usefull for touchpads which have incomplete driver support and are configured as generic input devices.
+Program to disable the touchpad while typing for Ubuntu. Includes an indicator in the panel.
+
+Uses the generic input event interface in Linux (/dev/input/*) to disable the touchpad while typing.
+This can be usefull for touchpads which have incomplete driver support and are configured as generic input devices.
 
 #Pre-requisites 
 
-Make sure the user running the program has access to the devices in `/dev/input` (`/dev/input/event*`). This can be done by making sure the user is a member of the `input` group.
+Make sure the user running the program has access to the devices in `/dev/input` (`/dev/input/event*`).
+This can be done by making sure the user is a member of the `input` group.
 
 #Dependencies
 - Python3 and pip
