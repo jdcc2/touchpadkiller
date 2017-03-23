@@ -16,6 +16,7 @@ http://candidtim.github.io/appindicator/2014/09/13/ubuntu-appindicator-step-by-s
 
 TODO
 
+- detect if a mouse button was pressed but not released yet
 - automatically select the first keyboard and mouse when none are specified
 
 """
