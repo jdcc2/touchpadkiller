@@ -2,6 +2,7 @@ import click
 from touchpadkiller import TouchpadKiller
 import logging
 import os
+import sys
 
 @click.group()
 def cli():
@@ -9,6 +10,7 @@ def cli():
 
 @click.command(help='List input devices under /dev/input/event*')
 def listDevices():
+    print("yolo")
     TouchpadKiller.listDevices()
     tp = TouchpadKiller.getFirstTouchpad()
     print(tp.fn, tp.name)
@@ -22,8 +24,10 @@ def listDevices():
 @click.option('--logfile', default=None, type=str, help='Specify a log file path')
 @click.option('--log', is_flag=True, help='Enable file logging. Default log path is HOME/touchpadkiller/touchpadkiller.log')
 def start(delay, kbname, tpname, kbeventnr, tpeventnr, logfile, log):
-
     logformat = '%(asctime)s:%(levelname)s:%(message)s'
+    logging.basicConfig(format=logformat, stream=sys.stdout,
+                        level=logging.DEBUG)
+    logging.warning("Loggin to stdout")
     if log and logfile is not None:
         logging.basicConfig(format=logformat, filename=logfile, level=logging.DEBUG)
     elif log:

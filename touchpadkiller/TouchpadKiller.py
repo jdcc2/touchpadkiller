@@ -59,6 +59,8 @@ class TouchpadKiller:
         print('[PATH] - "[NAME]" - [PHYS]')
         for device in devices:
             print('{} - "{}" - {}'.format(device.fn, device.name, device.phys))
+            print("active keys")
+            print(device.active_keys())
             caps = device.capabilities()
 
     @staticmethod
@@ -124,12 +126,18 @@ class TouchpadKiller:
                     #print('keyevent')
 
     async def controlTouchpad(self):
+        print("yoeloeeleo")
+        logging.warn("controltouchpad")
         while True:
+
             if time.time() > self.lastTypeEvent + self.delay and self.disabled:
+
                 self.touchpad.ungrab()
                 self.disabled = False
                 #print("enable")
             elif time.time() < self.lastTypeEvent + self.delay and not self.disabled:
+                print("yolo")
+                print(self.touchpad.active_keys())
                 self.touchpad.grab()
                 self.disabled = True
                 #print("disabled")
